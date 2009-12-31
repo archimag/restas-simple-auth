@@ -12,5 +12,5 @@
                         :components ((:file "packages")
                                      (:file "storage" :depends-on ("packages"))
                                      (:file "cookie" :depends-on ("storage"))
-                                     (:file "login" :depends-on ("cookie"))
-                                     (:file "init" :depends-on ("storage"))))))
+                                     (:file "init" :depends-on ("storage" "cookie"))
+                                     (:file "simple-auth" :depends-on ("cookie"))))))

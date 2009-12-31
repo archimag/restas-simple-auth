@@ -7,9 +7,13 @@
 
 {namespace restas.simple-auth.view}
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Login form
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
 {template login}
-    <div id="content">
-        <form  class="login-form" asfirst="true" method="post">
+    <div>
+        <form  class="login-form" method="post">
             <table >
                 <tbody>
                     <tr>
@@ -32,5 +36,227 @@
                 </tbody>
             </table>
         </form>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Register form
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template register}
+    <div>
+        <h3>Создайте учётную запись</h3>
+
+        <p>Учётная запись даст вам возможность общаться в форуме, управлять своим профилем и некоторые другие возможности.</p>
+        
+        <form class="register-form" method="post">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Имя входа (логин):</td>
+                        <td>
+                            {if $badName}
+                                <div class="error-info">
+                                    {switch $badName}
+                                      {case 'empty'} Не указан логин
+                                      {case 'exist'} Пользователь с таким логином уже существует
+                                    {/switch}
+                                </div>
+                            {/if}
+                            <input name="name" size="30" {if $name}value="{$name}"{/if} /> 
+                            <div class="info">Например: graham, Piter.Norvig </div> 
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Ваш email:</td>
+                        <td>
+                            {if $badEmail}
+                                <div class="error-info">
+                                    {switch $badEmail}
+                                      {case 'empty'} Не указан email
+                                      {case 'bad'} Это не похоже на email
+                                      {case 'exist'} Пользователь с таким email уже существует
+                                    {/switch}
+                                </div>
+                            {/if}
+                            <input name="email" size="30" {if $email}value="{$email}"{/if}/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Укажите пароль:</td>
+                        <td>
+                            {if $badPassword}
+                                <div class="error-info">
+                                    {switch $badPassword}
+                                      {case 'empty'} Необходимо ввести пароль
+                                      {case 'short'} Слишком короткий
+                                    {/switch}
+                                </div>
+                            {/if}
+                            <input name="password" type="password" size="30" {if $password}value="{$password}"{/if} />
+                            <div class="info">Минимальная длина - 8 символов</div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Введите пароль ещё раз:</td>
+                        <td>
+                            {if $badRePassword}
+                                <div class="error-info">
+                                    Пароли не совпадают
+                                </div>
+                            {/if}
+                            <input name="re-password" type="password" size="30" {if $rePassword}value="{$rePassword}"{/if}/>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="submit" value="Создать учётную запись" />
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </form>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Register send mail
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template register-send-mail}
+    <div>
+        <p>Вам выслано письмо со ссылкой на продолжение регистрации.</p>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Confirmation of registration
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template confirmation}
+    <div>
+        <p>Для завершение регистрации введите два слова:</p>
+        <form method="post">
+            <script>
+                var RecaptchaOptions = {
+                   theme : 'clean',
+                   lang: "ru"
+                };
+            </script>
+
+            <script type="text/javascript"
+                    src="http://api.recaptcha.net/challenge?k=${recaptcha-pubkey}">
+            </script>
+
+            <noscript>
+                <iframe src="http://api.recaptcha.net/noscript?k=${recaptcha-pubkey}"
+                        height="300" width="500" frameborder="0"></iframe><br />
+                <textarea name="recaptcha_challenge_field" rows="3" cols="40">
+                </textarea>
+                <input type="hidden" name="recaptcha_response_field" 
+                       value="manual_challenge" />
+            </noscript>
+
+            <br />
+            <input type="submit" value="Потвердить регистрацию" />
+        </form>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Success registration
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template success-registration}
+    <div>
+        Поздравляем, теперь Вы член сообщества <a href="http://lisper.ru/">lisper.ru</a>
+    </div>
+{/template}
+
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Forgot form
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template forgot}
+    <div>
+        <form  class="login-form" asfirst="true" method="post">
+            <h3>Забыли свой пароль?</h3>
+            <p>Нам необходимо убедиться, что Вы имеете доступ к учётной записи электронной почты</p>
+            <table >
+                <tbody>
+                    <tr>
+                        <td>Адрес электронной почты</td>
+                        <td><input name="email" /></td>
+                    </tr>
+
+                    <tr>
+                        <td />
+                        <td><input type="submit" value="Отправить" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Forgot send mail
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template forgot-send-mail}
+    <div>
+        <h3>Забыли свой пароль?</h3>
+        <p>Вам выслано письмо со ссылкой на продолжение.</p>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Reset password form
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template reset-password-form}
+    <div>
+        <form  class="login-form" method="post">
+            <table >
+                <tbody>
+                    <tr>
+                        <td>Новый Пароль </td>
+                        <td>
+                            <input type="password" name="password" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Повторите Новый Пароль </td>
+                        <td>
+                            <input type="password" name="confirmation" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td />
+                        <td><input type="submit" value="Изменить" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+{/template}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Reset password success
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template reset-password-success}
+    <div>
+        <p>Пароль успешно обновлён</p>
     </div>
 {/template}

@@ -86,15 +86,12 @@
 
 (defun run-login (login password-md5 &key (version 1) )
   "Set cookie for user name and password"
-  (setf *bindings*
-        (acons :user-login-name login *bindings*))
+  ;; (setf *bindings*
+  ;;       (acons :user-login-name login *bindings*))
   (set-auth-cookie login password-md5 :version version))
 
 ;;;; run-logout
 
 (defun run-logout ()
   "Cleaer cookie with auth information"
-  (setf (cdr (assoc :user-login-name
-                    *bindings*))
-        nil)
   (hunchentoot:set-cookie *cookie-auth-name*))

@@ -7,7 +7,14 @@
 
 
 (restas:define-plugin #:restas.simple-auth
-  (:use #:cl))
+  (:use #:cl #:restas.optional)
+  (:export #:*finalize-page*
+           #:*cookie-auth-name*
+           #:*cookie-cipher-key*
+           #:*storage*
+           #:check-user-password
+           #:check-email-exist
+           #:check-user-exist))
 
 (in-package #:restas.simple-auth)
 

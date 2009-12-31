@@ -7,8 +7,12 @@
 
 (in-package #:restas.simple-auth)
 
-(defvar *storage*)
+(defvar *storage* nil)
 
 ;;;; generic interface
 
 (defgeneric check-user-password (storage login password))
+
+(defgeneric check-email-exist (storage email))
+
+(defgeneric check-user-exist (storage login))

@@ -10,7 +10,7 @@
 (restas:define-initialization (context)
   (restas:context-add-variable context
                                '*user-auth-cipher*
-                               (ironclad:make-cipher :blowfish
+                               (ironclad:make-cipher :blowfish 
                                                      :mode :ecb
                                                      :key (restas:context-symbol-value context
                                                                                        '*cookie-cipher-key*))))
