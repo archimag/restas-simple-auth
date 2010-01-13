@@ -7,7 +7,7 @@
 
 (in-package #:restas.simple-auth)
 
-(defvar *storage* nil)
+(defvar *storage*)
 
 ;;;; generic interface
 
@@ -16,3 +16,14 @@
 (defgeneric check-email-exist (storage email))
 
 (defgeneric check-user-exist (storage login))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; storage in memory 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defclass memory-storage ()
+  ((users :initarg :users :initform nil)))
+
+
+(setf *storage*
+      (make-instance 'memory-storage))
