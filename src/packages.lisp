@@ -12,15 +12,19 @@
            #:*cookie-auth-name*
            #:*cookie-cipher-key*
            #:*storage*
-           #:check-user-password
-           #:check-email-exist
-           #:check-user-exist))
+           #:storage-check-user-password
+           #:storage-check-email-exist
+           #:storage-check-user-exist
+           #:storage-create-forgot-mark
+           #:storage-create-forgot-mark))
 
 (in-package #:restas.simple-auth)
 
 (defparameter *reCAPTCHA.publick-key* "6LdZjAcAAAAAAGh_MzHcHfJWp6rpI0XUNghGQB1f")
 
 (defparameter *reCAPTCHA.privake-key* "6LdZjAcAAAAAAKJ2GPWTHPh1H1Foc0kyfbwgrFgO")
+
+(defparameter *noreply-email* "noreply@example.com")
 
 (closure-template:compile-template :common-lisp-backend
                                    (merge-pathnames "src/simple-auth.tmpl"

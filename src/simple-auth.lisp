@@ -25,7 +25,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-route login ("login")
-  (finalize-page (restas.simple-auth.view:login nil)
+  (finalize-page (restas.simple-auth.view:login `(:forgot-href ,(genurl 'forgot)))
                  "Вход"))
 
 (define-route login/post ("login"
@@ -34,7 +34,7 @@
   (let ((name (hunchentoot:post-parameter "name"))
         (password-md5 (calc-md5-sum (hunchentoot:post-parameter "password")))
         (done (hunchentoot:get-parameter "done")))
-    (if (check-user-password *storage* name password-md5)
+    (if (check-user-password name password-md5)
         (progn
           (run-login name password-md5)
           (restas:redirect (if done
@@ -80,7 +80,7 @@
       (cond
         ((form-field-empty-p "name")
          (form-error-message :bad-name "empty"))
-        ((check-user-exist *storage* (form-field-value "name"))
+        ((check-user-exist (form-field-value "name"))
          (form-error-message :bad-name "exist")))
       
       (cond
@@ -89,7 +89,7 @@
                           (string-downcase (form-field-value "email"))))
               (form-error-message :bad-email
                                   "bad"))
-        ((check-email-exist *storage* (form-field-value "email"))
+        ((check-email-exist (form-field-value "email"))
          (form-error-message :bad-email
                              "exist")))
 
@@ -121,11 +121,31 @@
          "Регистрация"))))
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; forgot
+;;;; forgot password
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-route forgot ("forgot"
                       :requirement #'not-logged-on-p)
   (finalize-page (restas.simple-auth.view:forgot nil)
                  "Восстановление пароля"))
-  
+
+(define-route forgot/post ("forgot"
+                           :method :post
+                           :requirement #'not-logged-on-p)
+  (let ((email-or-login (hunchentoot:post-parameter "email-or-login")))
+    (if (or (not email-or-login)
+            (string= email-or-login ""))
+        (restas:redirect 'forgot)
+        (multiple-value-bind (mark login email) (create-forgot-mark email-or-login)
+          (declare (ignore login))
+          (if mark
+              (progn
+                (send-mail (list email)
+                           (restas.simple-auth.view:forgot-mail (list :to (list email)
+                                                                      :noreply-mail *noreply-email*
+                                                                      :subject (prepare-subject "Восстановление пароля")
+                                                                      :link (restas:genurl-with-host 'reset-password :mark mark))))
+                (finalize-page (restas.simple-auth.view:forgot-send-mail nil)
+                               "Восстановление пароля"))
+              (finalize-page (restas.simple-auth.view:forgot (list :bad t))
+                             "Восстановление пароля"))))))

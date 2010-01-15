@@ -78,8 +78,7 @@
   "Return user name for *request*."
   (let ((auth-info (get-auth-cookie)))
     (if auth-info
-        (check-user-password *storage*
-                             (second auth-info)
+        (check-user-password (second auth-info)
                              (third auth-info)))))
         
 ;;;; run-login

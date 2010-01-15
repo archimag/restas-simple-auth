@@ -13,4 +13,5 @@
                                      (:file "storage" :depends-on ("packages"))
                                      (:file "cookie" :depends-on ("storage"))
                                      (:file "init" :depends-on ("storage" "cookie"))
-                                     (:file "simple-auth" :depends-on ("cookie"))))))
+                                     (:file "sendmail" :depends-on ("packages"))
+                                     (:file "simple-auth" :depends-on ("cookie" "sendmail"))))))

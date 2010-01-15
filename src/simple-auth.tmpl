@@ -25,7 +25,7 @@
                         <td>Пароль</td>
                         <td>                            
                             <input type="password" name="password"/>
-                            <a href="/forgot-password" >Забыли?</a>
+                            <a href="{$forgotHref}" >Забыли?</a>
                         </td>
                     </tr>
 
@@ -193,8 +193,13 @@
             <table >
                 <tbody>
                     <tr>
-                        <td>Адрес электронной почты</td>
-                        <td><input name="email" /></td>
+                        <td>Логин или адрес электронной почты</td>
+                        <td>
+                            {if $bad}
+                               <div class="error-info">Пользователь с таким логином или email не зарегестрирован</div>
+                            {/if}
+                            <input name="email-or-login" {if $email}value="{$email-or-login}"{/if} />
+                        </td>
                     </tr>
 
                     <tr>
@@ -259,4 +264,29 @@
     <div>
         <p>Пароль успешно обновлён</p>
     </div>
+{/template}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ * Mails
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+{template forgot-mail}
+    {nil}To: {foreach $receiver in $to}{if not isFirst($receiver)}{sp}{/if}{$receiver}{/foreach}{\n}
+    {nil}From: {$noreplyMail}{\n}
+    {nil}Subject: {$subject}{\n}
+    {nil}Content-Type: text/html; charset=utf-8{\n}
+    {\n}
+    
+    <p>
+        Вы попросили изменить свой пароль на сайте <a href="http://lisper.ru/">lisper.ru</a>.
+        Вы можете это сделать по адрессу: <a href="{$link}">{$link}</a>
+    </p>
+
+    <p>
+        Эта ссылка будет работоспособной в течении двух дней. 
+        Если Вы не запрашивали это сообщение, то просто игнорируйте его.
+    </p>
+
+   Keeper
 {/template}
