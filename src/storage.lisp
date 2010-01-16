@@ -86,5 +86,5 @@
 (setf *storage*
       (make-instance 'memory-storage
                      :users (list (list "archimag"
-                                        "moskvitin@tabris.ru"
-                                        (restas.optional:calc-md5-sum "pantera")))))
+                                        "archimag@gmail.com"
+                                        (restas.optional:calc-md5-sum "123")))))
