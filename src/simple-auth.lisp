@@ -7,8 +7,6 @@
 
 (in-package #:restas.simple-auth)
 
-(defparameter *finalize-page* #'closure-template.standard:xhtml-strict-frame)
-
 (defun finalize-page (content title)
   (funcall *finalize-page*
            (list :title title
@@ -149,3 +147,10 @@
                                "Восстановление пароля"))
               (finalize-page (restas.simple-auth.view:forgot (list :bad t))
                              "Восстановление пароля"))))))
+
+(define-route reset-password ("reset-password/:(mark)"
+                              :requirement #'not-logged-on-p)
+  (if (forgot-mark-exist-p mark)
+      (finalize-page (restas.simple-auth.view:reset-password-form nil)
+                     "Изменение пароля")
+      hunchentoot:+HTTP-NOT-FOUND+))

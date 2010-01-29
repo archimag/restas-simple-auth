@@ -7,12 +7,6 @@
 
 (in-package #:restas.simple-auth)
 
-(defparameter *cookie-auth-name* "userauth")
-
-(defparameter *cookie-cipher-key* (ironclad:ascii-string-to-byte-array "Specify the secure key"))
-
-(defvar *user-auth-cipher*)
-
 ;;;; set-auth-cookie
 
 (defun pack-auth-cookie (name password &key (version 1) date)
@@ -92,5 +86,5 @@
 ;;;; run-logout
 
 (defun run-logout ()
-  "Cleaer cookie with auth information"
+  "Clear cookie with auth information"
   (hunchentoot:set-cookie *cookie-auth-name*))

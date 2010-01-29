@@ -7,8 +7,6 @@
 
 (in-package #:restas.simple-auth)
 
-(defvar *storage*)
-
 ;;;; generic interface
 
 (defgeneric storage-check-user-password (storage login password))
@@ -19,7 +17,9 @@
 
 (defgeneric storage-create-forgot-mark (storage login-or-email))
 
-;;;; inner interface
+(defgeneric storage-forgot-mark-exist-p (storage mark))
+
+;;;; inner interfacen
 
 (defun check-user-password (login password)
   (storage-check-user-password *storage* login password))
@@ -32,6 +32,9 @@
 
 (defun create-forgot-mark (email)
   (storage-create-forgot-mark *storage* email))
+
+(defun forgot-mark-exist-p (mark)
+  (storage-forgot-mark-exist-p *storage* mark))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; storage in memory 
@@ -74,11 +77,18 @@
       (unless (find mark
                     (slot-value storage 'forgots)
                     :test #'string=)
-        (push mark
+        (push (cons mark
+                    info)
               (slot-value storage 'forgots)))
       (values mark
               (first info)
               (second info)))))
+
+(defmethod storage-forgot-mark-exist-p ((storage memory-storage) mark)
+  (find mark
+        (slot-value storage 'forgots)
+        :key #'car
+        :test #'string=))
 
 
 ;;;; default init *storage*

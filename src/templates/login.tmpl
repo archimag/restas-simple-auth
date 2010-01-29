@@ -1,0 +1,38 @@
+// -*- mode: closure-template-html -*-
+//
+// logim.tmpl
+//
+// This file is part of the restas-simple-auth library, released under Lisp-LGPL.
+// See file COPYING for details.
+//
+// Author: Moskvitin Andrey <archimag@gmail.com>
+
+{namespace restas.simple-auth.view}
+
+{template login}
+    <div>
+        <form  class="login-form" method="post">
+            <table >
+                <tbody>
+                    <tr>
+                        <td>Имя пользователя</td>
+                        <td><input name="name" /></td>
+                    </tr>
+
+                    <tr>
+                        <td>Пароль</td>
+                        <td>                            
+                            <input type="password" name="password"/>
+                            <a href="{$forgotHref}" >Забыли?</a>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td />
+                        <td><input type="submit" value="Войти" /></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+{/template}

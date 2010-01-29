@@ -7,12 +7,6 @@
 
 (in-package #:restas.simple-auth)
 
-(defvar *sendmail*
-  (find-if #'fad:file-exists-p
-           (list "/usr/bin/sendmail"
-                 "/usr/sbin/sendmail")))
-
-
 (defun prepare-subject (subject &optional (external-format :utf-8))
   (format nil
           "=?~A?B?~A?="
