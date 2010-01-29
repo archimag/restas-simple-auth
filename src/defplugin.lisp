@@ -14,6 +14,7 @@
            #:storage-check-user-password
            #:storage-check-email-exist
            #:storage-check-user-exist
+           #:storage-create-account
            #:storage-create-forgot-mark
            #:storage-create-forgot-mark
            #:storage-forgot-mark-exist-p))

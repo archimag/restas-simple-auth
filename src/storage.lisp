@@ -15,11 +15,13 @@
 
 (defgeneric storage-check-user-exist (storage login))
 
+(defgeneric storage-create-account (storage login email password))
+
 (defgeneric storage-create-forgot-mark (storage login-or-email))
 
 (defgeneric storage-forgot-mark-exist-p (storage mark))
 
-;;;; inner interfacen
+;;;; inner interface
 
 (defun check-user-password (login password)
   (storage-check-user-password *storage* login password))
@@ -29,6 +31,9 @@
 
 (defun check-user-exist (login)
   (storage-check-user-exist *storage* login))
+
+(defun create-account (login email password)
+  (storage-create-account *storage* login email password))
 
 (defun create-forgot-mark (email)
   (storage-create-forgot-mark *storage* email))
@@ -66,6 +71,13 @@
         :key #'second
         :test #'string-equal))
 
+(defmethod storage-create-account ((storage memory-storage) login email password)
+  (push (list login
+              email
+              (calc-md5-sum password))
+        (slot-value storage
+                    'users)))
+
 (defmethod storage-create-forgot-mark ((storage memory-storage) login-or-email)
   (let* ((info (find login-or-email
                      (slot-value storage 'users)
@@ -93,8 +105,8 @@
 
 ;;;; default init *storage*
 
-(setf *storage*
-      (make-instance 'memory-storage
-                     :users (list (list "archimag"
-                                        "archimag@gmail.com"
-                                        (restas.optional:calc-md5-sum "123")))))
+(setf *storage* (make-instance 'memory-storage))
+
+(create-account "archimag" "archimag@gmail.com" "123")
+
+                     
