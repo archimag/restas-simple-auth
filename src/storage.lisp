@@ -25,6 +25,8 @@
 
 (defgeneric storage-forgot-mark-exist-p (storage mark))
 
+(defgeneric storage-change-password (storage forgot-makr password))
+
 ;;;; inner interface
 
 (defun check-user-password (login password)
@@ -50,6 +52,9 @@
 
 (defun forgot-mark-exist-p (mark)
   (storage-forgot-mark-exist-p *storage* mark))
+
+(defun change-passwowrd (forgot-mark password)
+  (storage-change-password *storage* forgot-mark password))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; storage in memory 
@@ -133,6 +138,17 @@
         (slot-value storage 'forgots)
         :key #'car
         :test #'string=))
+
+(defmethod storage-change-password ((storage memory-storage) forgot-mark password)
+  (let ((info (find forgot-mark
+                     (slot-value storage 'forgots)
+                     :key #'car
+                     :test #'string=)))
+    (setf (third (cdr info))
+          password)
+    (setf (slot-value storage 'forgots)
+          (delete info
+                  (slot-value storage 'forgots)))))
 
 
 ;;;; default init *storage*

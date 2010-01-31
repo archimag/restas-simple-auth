@@ -11,7 +11,7 @@
 
 {template forgot}
     <div>
-        <form  class="login-form" asfirst="true" method="post">
+        <form method="post">
             <h3>Забыли свой пароль?</h3>
             <p>Нам необходимо убедиться, что Вы имеете доступ к учётной записи электронной почты</p>
             <table >
@@ -53,7 +53,7 @@
 
 {template reset-password-form}
     <div>
-        <form  class="login-form" method="post">
+        <form method="post">
             <table >
                 <tbody>
                     <tr>
@@ -62,7 +62,6 @@
                             {switch $badPassword}
                                 {case 'empty'}<div class="error-info">Необходимо указать пароль</div>
                                 {case 'short'}<div class="error-info">Должно быть не менее 8 символов</div>
-                                {default}<div class="error-info">Плохой пароль</div>
                             {/switch}
                             <input type="password" name="password" {if $password}value="{$password}"{/if}/>
                         </td>
@@ -71,10 +70,10 @@
                     <tr>
                         <td>Повторите Новый Пароль </td>
                         <td>
-                            {if $badConfirmation}
+                            {if $badRePassword}
                                 <div class="error-info">Пароли не совпадают</div>
                             {/if}
-                            <input type="password" name="confirmation" {if $confirmation}value="{$confirmation}"{/if}/>
+                            <input type="password" name="re-password" {if {$re-password}value="{$re-password}"{/if}/>
                         </td>
                     </tr>
 

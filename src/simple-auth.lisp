@@ -122,7 +122,7 @@
                                            :noreply-mail *noreply-email*
                                            :subject (prepare-subject "Потверждение регистрации")
                                            :host "lisper.ru"
-                                           :link (genurl 'accept-invitation :invite invite))))
+                                           :link (restas:genurl-with-host 'accept-invitation :invite invite))))
                          (restas.simple-auth.view:register-send-mail nil)))
                    "Регистрация")))
 
@@ -188,3 +188,35 @@
       (finalize-page (restas.simple-auth.view:reset-password-form nil)
                      "Изменение пароля")
       hunchentoot:+HTTP-NOT-FOUND+))
+
+(define-route reset-password/post ("reset-password/:(mark)"
+                              :method :post
+                              :requirement #'not-logged-on-p)
+    (if (forgot-mark-exist-p mark)
+        (let ((bads nil))
+          (flet ((form-error-message (field message)
+                   (push message bads)
+                   (push field bads)))
+            (cond
+              ((form-field-empty-p "password")
+               (form-error-message :bad-password
+                                   "empty"))
+              ((< (length (form-field-value "password")) 8)
+               (form-error-message :bad-password
+                                   "short")))
+            (unless (string= (form-field-value "password")
+                             (form-field-value "re-password"))
+              (form-error-message :bad-re-password
+                                  "bad")))
+          (finalize-page (if bads 
+                             (restas.simple-auth.view:reset-password-form (list* :password (form-field-value "password")
+                                                                                 :re-password (form-field-value "re-password")
+                                                                                 bads))
+                             (progn (change-passwowrd mark
+                                                      (password-cache (hunchentoot:post-parameter "password")))
+                                    (restas.simple-auth.view:reset-password-success nil)))
+                         "Изменение пароля"))
+        (restas:redirect 'forgot)))
+
+            
+  
