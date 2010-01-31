@@ -9,14 +9,16 @@
 
 (defun finalize-page (content title)
   (funcall *finalize-page*
-           (list :title title
-                 :body content)))
+           (list :title title :body content)))
 
 (defun logged-on-p ()
   (compute-user-login-name))
 
 (defun not-logged-on-p ()
   (not (logged-on-p)))
+
+(defun password-cache (password)
+  (calc-md5-sum password))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; login
@@ -30,7 +32,7 @@
                           :method :post
                           :requirement #'not-logged-on-p)
   (let ((name (hunchentoot:post-parameter "name"))
-        (password-md5 (calc-md5-sum (hunchentoot:post-parameter "password")))
+        (password-md5 (password-cache (hunchentoot:post-parameter "password")))
         (done (hunchentoot:get-parameter "done")))
     (if (check-user-password name password-md5)
         (progn
@@ -44,8 +46,7 @@
 ;;;; logout
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route logout ("logout"
-                      :requirement #'logged-on-p)
+(define-route logout ("logout" :requirement #'logged-on-p)
   (run-logout)
   (restas:redirect (or (hunchentoot:header-in :referer hunchentoot:*request*)
                        'login)))
@@ -54,9 +55,8 @@
 ;;;; register
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route register ("register"
-                        :requirement #'not-logged-on-p)
-  (finalize-page (restas.simple-auth.view:register nil)
+(define-route register ("register" :requirement #'not-logged-on-p)
+  (finalize-page (restas.simple-auth.view:register-form nil)
                  "Регистрация"))
 
 (defun form-field-value (field)
@@ -66,10 +66,6 @@
   (string= (form-field-value field)
            ""))
 
-(defparameter *re-email-check* 
-  "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
-
-
 (defun check-register-form ()
   (let ((bads nil))
     (flet ((form-error-message (field message)
@@ -78,7 +74,7 @@
       (cond
         ((form-field-empty-p "name")
          (form-error-message :bad-name "empty"))
-        ((check-user-exist (form-field-value "name"))
+        ((user-exist-p (form-field-value "name"))
          (form-error-message :bad-name "exist")))
       
       (cond
@@ -87,7 +83,7 @@
                           (string-downcase (form-field-value "email"))))
               (form-error-message :bad-email
                                   "bad"))
-        ((check-email-exist (form-field-value "email"))
+        ((email-exist-p (form-field-value "email"))
          (form-error-message :bad-email
                              "exist")))
 
@@ -108,22 +104,60 @@
 (define-route register/post ("register"
                              :method :post
                              :requirement #'not-logged-on-p)
-  (let ((form-bads (check-register-form)))
-    (if form-bads
-        (finalize-page
-         (restas.simple-auth.view:register (list* :name (form-field-value "name")
-                                                  :email (form-field-value "email")
-                                                  :password (form-field-value "password")
-                                                  :re-password (form-field-value "re-password")
-                                                  form-bads))
-         "Регистрация"))))
+  (let ((form-bads (check-register-form))
+        (login (form-field-value "name"))
+        (email (form-field-value "email"))
+        (password (form-field-value "password")))
+    (finalize-page (if form-bads
+                       (restas.simple-auth.view:register-form (list* :name login
+                                                                     :email email
+                                                                     :password password
+                                                                     :re-password (form-field-value "re-password")
+                                                                     form-bads))
+                       (let ((invite (create-invite login email (password-cache password)))
+                             (to (list email)))
+                         (send-mail to
+                                    (restas.simple-auth.view:confirmation-mail
+                                     (list :to to
+                                           :noreply-mail *noreply-email*
+                                           :subject (prepare-subject "Потверждение регистрации")
+                                           :host "lisper.ru"
+                                           :link (genurl 'accept-invitation :invite invite))))
+                         (restas.simple-auth.view:register-send-mail nil)))
+                   "Регистрация")))
+
+(defun accept-invitation-form ()
+  (finalize-page (restas.simple-auth.view:confirmation (list :recaptcha-pubkey *reCAPTCHA.publick-key*
+                                                                 :theme *reCAPTCHA.theme*))
+                     "Потверждение регистрации"))
+
+(define-route accept-invitation ("register/confirmation/:(invite)" :requirement #'not-logged-on-p)
+  (if (invite-exist-p invite)
+      (accept-invitation-form)
+      hunchentoot:+HTTP-NOT-FOUND+))
+
+(define-route accept-invitation/post ("register/confirmation/:(invite)"
+                                      :method :post
+                                      :requirement #'not-logged-on-p)
+  (if (invite-exist-p invite)
+      (if (cl-recaptcha:verify-captcha (hunchentoot:post-parameter "recaptcha_challenge_field")
+                                        (hunchentoot:post-parameter "recaptcha_response_field")
+                                        (hunchentoot:real-remote-addr)
+                                        :private-key *reCAPTCHA.privake-key*)
+          (let ((account (create-account invite)))
+            (run-login (first account)
+                       (third account))
+            (finalize-page (restas.simple-auth.view:success-registration nil)
+                           "Регистрация завершена"))
+          (accept-invitation-form))
+      hunchentoot:+HTTP-NOT-FOUND+))
+        
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; forgot password
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route forgot ("forgot"
-                      :requirement #'not-logged-on-p)
+(define-route forgot ("forgot" :requirement #'not-logged-on-p)
   (finalize-page (restas.simple-auth.view:forgot nil)
                  "Восстановление пароля"))
 

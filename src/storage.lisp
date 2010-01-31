@@ -11,11 +11,15 @@
 
 (defgeneric storage-check-user-password (storage login password))
 
-(defgeneric storage-check-email-exist (storage email))
+(defgeneric storage-email-exist-p (storage email))
 
-(defgeneric storage-check-user-exist (storage login))
+(defgeneric storage-user-exist-p (storage login))
 
-(defgeneric storage-create-account (storage login email password))
+(defgeneric storage-create-invite (storage login email password))
+
+(defgeneric storage-invite-exist-p (storage invite))
+
+(defgeneric storage-create-account (storage invite))
 
 (defgeneric storage-create-forgot-mark (storage login-or-email))
 
@@ -26,14 +30,20 @@
 (defun check-user-password (login password)
   (storage-check-user-password *storage* login password))
 
-(defun check-email-exist (email)
-  (storage-check-email-exist *storage* email))
+(defun email-exist-p (email)
+  (storage-email-exist-p *storage* email))
 
-(defun check-user-exist (login)
-  (storage-check-user-exist *storage* login))
+(defun user-exist-p (login)
+  (storage-user-exist-p *storage* login))
 
-(defun create-account (login email password)
-  (storage-create-account *storage* login email password))
+(defun create-invite (login email password)
+  (storage-create-invite *storage* login email password))
+
+(defun invite-exist-p (invite)
+  (storage-invite-exist-p *storage* invite))
+
+(defun create-account (invite)
+  (storage-create-account *storage* invite))
 
 (defun create-forgot-mark (email)
   (storage-create-forgot-mark *storage* email))
@@ -59,24 +69,46 @@
                password)
       login))
 
-(defmethod storage-check-user-exist ((storage memory-storage) login)
+(defmethod storage-user-exist-p ((storage memory-storage) login)
   (find login
         (slot-value storage 'users)
         :key #'first
         :test #'string=))
 
-(defmethod storage-check-email-exist ((storage memory-storage) email)
+(defmethod storage-email-exist-p ((storage memory-storage) email)
   (find email
         (slot-value storage 'users)
         :key #'second
         :test #'string-equal))
 
-(defmethod storage-create-account ((storage memory-storage) login email password)
-  (push (list login
-              email
-              (calc-md5-sum password))
-        (slot-value storage
-                    'users)))
+(defmethod storage-create-invite ((storage memory-storage)  login email password)
+  (let ((invite (calc-sha1-sum (format nil "~A~A~A" login email password))))
+    (push (list invite
+                login
+                email
+                password)
+          (slot-value storage
+                      'invites))
+    invite))
+
+(defmethod storage-invite-exist-p ((storage memory-storage) invite)
+  (if (assoc invite
+             (slot-value storage 'invites)
+             :test #'string=)
+      t
+      nil))
+
+(defmethod storage-create-account ((storage memory-storage) invite)
+  (let ((info (assoc invite
+                     (slot-value storage 'invites)
+                     :test #'string=)))
+    (when info
+      (push (cdr info)
+            (slot-value storage 'users))
+      (setf (slot-value storage 'invites)
+            (delete info
+                    (slot-value storage 'invites))))
+    (cdr info)))
 
 (defmethod storage-create-forgot-mark ((storage memory-storage) login-or-email)
   (let* ((info (find login-or-email
@@ -107,6 +139,6 @@
 
 (setf *storage* (make-instance 'memory-storage))
 
-(create-account "archimag" "archimag@gmail.com" "123")
+(create-account (create-invite "archimag" "archimag@gmail.com" (calc-md5-sum "123")))
 
                      

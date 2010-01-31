@@ -25,20 +25,22 @@
 ;;;; load templates
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(iter (for tmpl in '("login" "register" "forgot"))
-      (closure-template:compile-template :common-lisp-backend
-                                         (merge-pathnames (print (format nil "src/templates/~A.tmpl" tmpl))
-                                                          (asdf:component-pathname (asdf:find-system '#:restas-simple-auth)))))
+(let ((basepath (merge-pathnames "src/templates/"
+                                 (asdf:component-pathname (asdf:find-system '#:restas-simple-auth)))))
+  (iter (for tmpl in '("login" "register" "forgot"))
+        (closure-template:compile-template :common-lisp-backend
+                                           (merge-pathnames (format nil "~A.tmpl" tmpl)
+                                                            basepath))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; prefences
+;;;; preferences
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defparameter *reCAPTCHA.publick-key* "6LdZjAcAAAAAAGh_MzHcHfJWp6rpI0XUNghGQB1f")
 
 (defparameter *reCAPTCHA.privake-key* "6LdZjAcAAAAAAKJ2GPWTHPh1H1Foc0kyfbwgrFgO")
 
-(defparameter *noreply-email* "noreply@example.com")
+(defparameter *reCAPTCHA.theme* nil)
 
 (defparameter *storage* nil)
 
@@ -47,6 +49,8 @@
            (list "/usr/bin/sendmail"
                  "/usr/sbin/sendmail")))
 
+(defparameter *noreply-email* "noreply@example.com")
+
 (defparameter *cookie-auth-name* "userauth")
 
 (defparameter *cookie-cipher-key* (ironclad:ascii-string-to-byte-array "Specify the secure key"))
@@ -54,6 +58,9 @@
 (defvar *user-auth-cipher*)
 
 (defparameter *finalize-page* #'closure-template.standard:xhtml-strict-frame)
+
+(defparameter *re-email-check* 
+  "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; initialization

@@ -9,7 +9,7 @@
 
 {namespace restas.simple-auth.view}
 
-{template register}
+{template register-form}
     <div>
         <h3>Создайте учётную запись</h3>
 
@@ -95,23 +95,42 @@
     </div>
 {/template}
 
+{template confirmation-mail}
+    {nil}To: {foreach $receiver in $to}{if not isFirst($receiver)}{sp}{/if}{$receiver}{/foreach}{\n}
+    {nil}From: {$noreplyMail}{\n}
+    {nil}Subject: {$subject}{\n}
+    {nil}Content-Type: text/html; charset=utf-8{\n}
+    {\n}
+
+    Здравствуйте, 
+    <p>
+        Для завершения регистрации на <a href="http://{$host}/">{$host}</a> перейдите по ссылке <a href="{$link}">http://{$link}</a>.
+    </p>
+
+    <p>
+        Если Вы не регистрировались на сайте <a href="http://{$host}">{$host}</a>, то просто проигнорируйте это сообщение.
+    </p>
+
+    Keeper
+{/template}
+
 {template confirmation}
     <div>
         <p>Для завершение регистрации введите два слова:</p>
         <form method="post">
             <script>
-                var RecaptchaOptions = {
-                   theme : 'clean',
+                var RecaptchaOptions = {lb}
+                   theme : "{$theme ? $theme : 'clean'}",
                    lang: "ru"
-                };
+                {rb};
             </script>
 
             <script type="text/javascript"
-                    src="http://api.recaptcha.net/challenge?k=${recaptcha-pubkey}">
+                    src="http://api.recaptcha.net/challenge?k={$recaptchaPubkey}">
             </script>
 
             <noscript>
-                <iframe src="http://api.recaptcha.net/noscript?k=${recaptcha-pubkey}"
+                <iframe src="http://api.recaptcha.net/noscript?k={$recaptchaPubkey}"
                         height="300" width="500" frameborder="0"></iframe><br />
                 <textarea name="recaptcha_challenge_field" rows="3" cols="40">
                 </textarea>
@@ -128,6 +147,8 @@
 
 {template success-registration}
     <div>
-        Поздравляем, теперь Вы член сообщества <a href="http://lisper.ru/">lisper.ru</a>
+        Поздравляем с успешной регистрацией!</a>
     </div>
 {/template}
+
+

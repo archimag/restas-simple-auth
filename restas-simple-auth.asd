@@ -6,7 +6,7 @@
 ;;;; Author: Moskvitin Andrey <archimag@gmail.com>
 
 (defsystem restas-simple-auth
-  :depends-on (#:restas #:closure-template #:ironclad)
+  :depends-on (#:restas #:closure-template #:ironclad #:cl-recaptcha)
   :components ((:module "src"
                         :components ((:file "defplugin")
                                      (:file "storage" :depends-on ("defplugin"))
