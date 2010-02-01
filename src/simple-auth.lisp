@@ -121,7 +121,7 @@
                                      (list :to to
                                            :noreply-mail *noreply-email*
                                            :subject (prepare-subject "Потверждение регистрации")
-                                           :host "lisper.ru"
+                                           :host (hunchentoot:host)
                                            :link (restas:genurl-with-host 'accept-invitation :invite invite))))
                          (restas.simple-auth.view:register-send-mail nil)))
                    "Регистрация")))
@@ -176,6 +176,7 @@
                            (restas.simple-auth.view:forgot-mail (list :to (list email)
                                                                       :noreply-mail *noreply-email*
                                                                       :subject (prepare-subject "Восстановление пароля")
+                                                                      :host (hunchentoot:host)
                                                                       :link (restas:genurl-with-host 'reset-password :mark mark))))
                 (finalize-page (restas.simple-auth.view:forgot-send-mail nil)
                                "Восстановление пароля"))

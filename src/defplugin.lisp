@@ -7,10 +7,18 @@
 
 (restas:define-plugin #:restas.simple-auth
   (:use #:cl #:restas.optional #:iter)
-  (:export #:*finalize-page*
+  (:export #:*reCAPTCHA.publick-key*
+           #:*reCAPTCHA.privake-key*
+           #:*reCAPTCHA.theme*
+           #:*sendmail*
+           #:*noreply-email*
+           #:*re-email-check* 
+           #:*finalize-page*
            #:*cookie-auth-name*
            #:*cookie-cipher-key*
            #:*storage*
+           #:*host*
+
            #:storage-check-user-password
            #:storage-check-email-exist
            #:storage-check-user-exist
@@ -36,18 +44,19 @@
 ;;;; preferences
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defparameter *sendmail*
+  (find-if #'fad:file-exists-p
+           (list "/usr/bin/sendmail"
+                 "/usr/sbin/sendmail")))
+
+(defparameter *re-email-check* 
+  "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+
 (defparameter *reCAPTCHA.publick-key* "6LdZjAcAAAAAAGh_MzHcHfJWp6rpI0XUNghGQB1f")
 
 (defparameter *reCAPTCHA.privake-key* "6LdZjAcAAAAAAKJ2GPWTHPh1H1Foc0kyfbwgrFgO")
 
 (defparameter *reCAPTCHA.theme* nil)
-
-(defparameter *storage* nil)
-
-(defparameter *sendmail*
-  (find-if #'fad:file-exists-p
-           (list "/usr/bin/sendmail"
-                 "/usr/sbin/sendmail")))
 
 (defparameter *noreply-email* "noreply@example.com")
 
@@ -59,8 +68,9 @@
 
 (defparameter *finalize-page* #'closure-template.standard:xhtml-strict-frame)
 
-(defparameter *re-email-check* 
-  "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
+(defparameter *host* "example.com")
+
+(defparameter *storage* nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; initialization
