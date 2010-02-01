@@ -20,12 +20,14 @@
            #:*host*
 
            #:storage-check-user-password
-           #:storage-check-email-exist
-           #:storage-check-user-exist
+           #:storage-email-exist-p
+           #:storage-user-exist-p
+           #:storage-create-invite
+           #:storage-invite-exist-p
            #:storage-create-account
            #:storage-create-forgot-mark
-           #:storage-create-forgot-mark
-           #:storage-forgot-mark-exist-p))
+           #:storage-forgot-mark-exist-p
+           #:storage-change-password))
 
 (in-package #:restas.simple-auth)
 
