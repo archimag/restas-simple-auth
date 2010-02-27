@@ -5,7 +5,7 @@
 ;;;;
 ;;;; Author: Moskvitin Andrey <archimag@gmail.com>
 
-(restas:define-plugin #:restas.simple-auth
+(restas:define-module #:restas.simple-auth
   (:use #:cl #:restas.optional #:iter)
   (:export #:*reCAPTCHA.publick-key*
            #:*reCAPTCHA.privake-key*
