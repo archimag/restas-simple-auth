@@ -38,7 +38,7 @@
         (progn
           (run-login name password-md5)
           (restas:redirect (if done
-                               (hunchentoot:url-decode done)
+                               done
                                "/")))
         (restas:redirect 'login))))
 
