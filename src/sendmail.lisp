@@ -12,8 +12,8 @@
           "=?~A?B?~A?="
           external-format
           (base64:string-to-base64-string
-           (coerce (loop for code across (string-to-octets subject
-                                                           :external-format external-format)
+           (coerce (loop for code across (babel:string-to-octets subject
+                                                                 :encoding external-format)
                       collect (code-char code))
                    'string))))
 

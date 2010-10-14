@@ -6,7 +6,7 @@
 ;;;; Author: Moskvitin Andrey <archimag@gmail.com>
 
 (restas:define-module #:restas.simple-auth
-  (:use #:cl #:restas.optional #:iter)
+  (:use #:cl #:iter)
   (:export #:*reCAPTCHA.publick-key*
            #:*reCAPTCHA.privake-key*
            #:*reCAPTCHA.theme*
@@ -85,3 +85,18 @@
                                                      :mode :ecb
                                                      :key (restas:context-symbol-value context
                                                                                        '*cookie-cipher-key*))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; md5
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun calc-md5-sum (val)
+  "Calc sha1 sum of the val (string)"
+  (ironclad:byte-array-to-hex-string
+   (ironclad:digest-sequence :md5
+                             (babel:string-to-octets val :encoding :utf-8))))
+
+(defun calc-sha1-sum (val)
+  "Calc sha1 sum of the val (string)"
+  (ironclad:byte-array-to-hex-string
+   (ironclad:digest-sequence :sha1
+                             (babel:string-to-octets val :encoding :utf-8))))
