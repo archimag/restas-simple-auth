@@ -24,13 +24,13 @@
 ;;;; login
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route login ("login")
-  (finalize-page (restas.simple-auth.view:login `(:forgot-href ,(genurl 'forgot)))
+(restas:define-route login ("login")
+  (finalize-page (restas.simple-auth.view:login `(:forgot-href ,(restas:genurl 'forgot)))
                  "Вход"))
 
-(define-route login/post ("login"
-                          :method :post
-                          :requirement #'not-logged-on-p)
+(restas:define-route login/post ("login"
+                                 :method :post
+                                 :requirement #'not-logged-on-p)
   (let ((name (hunchentoot:post-parameter "name"))
         (password-md5 (password-cache (hunchentoot:post-parameter "password")))
         (done (hunchentoot:get-parameter "done")))
@@ -46,7 +46,7 @@
 ;;;; logout
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route logout ("logout" :requirement #'logged-on-p)
+(restas:define-route logout ("logout" :requirement #'logged-on-p)
   (run-logout)
   (restas:redirect (or (hunchentoot:header-in :referer hunchentoot:*request*)
                        'login)))
@@ -55,7 +55,7 @@
 ;;;; register
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route register ("register" :requirement #'not-logged-on-p)
+(restas:define-route register ("register" :requirement #'not-logged-on-p)
   (finalize-page (restas.simple-auth.view:register-form nil)
                  "Регистрация"))
 
@@ -101,9 +101,9 @@
                             "bad")))
       bads))
 
-(define-route register/post ("register"
-                             :method :post
-                             :requirement #'not-logged-on-p)
+(restas:define-route register/post ("register"
+                                    :method :post
+                                    :requirement #'not-logged-on-p)
   (let ((form-bads (check-register-form))
         (login (form-field-value "name"))
         (email (form-field-value "email"))
@@ -131,19 +131,19 @@
                                                                  :theme *reCAPTCHA.theme*))
                      "Потверждение регистрации"))
 
-(define-route accept-invitation ("register/confirmation/:(invite)" :requirement #'not-logged-on-p)
+(restas:define-route accept-invitation ("register/confirmation/:(invite)" :requirement #'not-logged-on-p)
   (if (invite-exist-p invite)
       (accept-invitation-form)
       hunchentoot:+HTTP-NOT-FOUND+))
 
-(define-route accept-invitation/post ("register/confirmation/:(invite)"
-                                      :method :post
-                                      :requirement #'not-logged-on-p)
+(restas:define-route accept-invitation/post ("register/confirmation/:(invite)"
+                                             :method :post
+                                             :requirement #'not-logged-on-p)
   (if (invite-exist-p invite)
       (if (cl-recaptcha:verify-captcha (hunchentoot:post-parameter "recaptcha_challenge_field")
-                                        (hunchentoot:post-parameter "recaptcha_response_field")
-                                        (hunchentoot:real-remote-addr)
-                                        :private-key *reCAPTCHA.privake-key*)
+                                       (hunchentoot:post-parameter "recaptcha_response_field")
+                                       (hunchentoot:real-remote-addr)
+                                       :private-key *reCAPTCHA.privake-key*)
           (let ((account (create-account invite)))
             (run-login (first account)
                        (third account))
@@ -157,13 +157,13 @@
 ;;;; forgot password
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(define-route forgot ("forgot" :requirement #'not-logged-on-p)
+(restas:define-route forgot ("forgot" :requirement #'not-logged-on-p)
   (finalize-page (restas.simple-auth.view:forgot nil)
                  "Восстановление пароля"))
 
-(define-route forgot/post ("forgot"
-                           :method :post
-                           :requirement #'not-logged-on-p)
+(restas:define-route forgot/post ("forgot"
+                                  :method :post
+                                  :requirement #'not-logged-on-p)
   (let ((email-or-login (hunchentoot:post-parameter "email-or-login")))
     (if (or (not email-or-login)
             (string= email-or-login ""))
@@ -183,41 +183,41 @@
               (finalize-page (restas.simple-auth.view:forgot (list :bad t))
                              "Восстановление пароля"))))))
 
-(define-route reset-password ("reset-password/:(mark)"
-                              :requirement #'not-logged-on-p)
+(restas:define-route reset-password ("reset-password/:(mark)"
+                                     :requirement #'not-logged-on-p)
   (if (forgot-mark-exist-p mark)
       (finalize-page (restas.simple-auth.view:reset-password-form nil)
                      "Изменение пароля")
       hunchentoot:+HTTP-NOT-FOUND+))
 
-(define-route reset-password/post ("reset-password/:(mark)"
-                              :method :post
-                              :requirement #'not-logged-on-p)
-    (if (forgot-mark-exist-p mark)
-        (let ((bads nil))
-          (flet ((form-error-message (field message)
-                   (push message bads)
-                   (push field bads)))
-            (cond
-              ((form-field-empty-p "password")
-               (form-error-message :bad-password
-                                   "empty"))
-              ((< (length (form-field-value "password")) 8)
-               (form-error-message :bad-password
-                                   "short")))
-            (unless (string= (form-field-value "password")
-                             (form-field-value "re-password"))
-              (form-error-message :bad-re-password
-                                  "bad")))
-          (finalize-page (if bads 
-                             (restas.simple-auth.view:reset-password-form (list* :password (form-field-value "password")
-                                                                                 :re-password (form-field-value "re-password")
-                                                                                 bads))
-                             (progn (change-passwowrd mark
-                                                      (password-cache (hunchentoot:post-parameter "password")))
-                                    (restas.simple-auth.view:reset-password-success nil)))
-                         "Изменение пароля"))
-        (restas:redirect 'forgot)))
+(restas:define-route reset-password/post ("reset-password/:(mark)"
+                                          :method :post
+                                          :requirement #'not-logged-on-p)
+  (if (forgot-mark-exist-p mark)
+      (let ((bads nil))
+        (flet ((form-error-message (field message)
+                 (push message bads)
+                 (push field bads)))
+          (cond
+            ((form-field-empty-p "password")
+             (form-error-message :bad-password
+                                 "empty"))
+            ((< (length (form-field-value "password")) 8)
+             (form-error-message :bad-password
+                                 "short")))
+          (unless (string= (form-field-value "password")
+                           (form-field-value "re-password"))
+            (form-error-message :bad-re-password
+                                "bad")))
+        (finalize-page (if bads 
+                           (restas.simple-auth.view:reset-password-form (list* :password (form-field-value "password")
+                                                                               :re-password (form-field-value "re-password")
+                                                                               bads))
+                           (progn (change-passwowrd mark
+                                                    (password-cache (hunchentoot:post-parameter "password")))
+                                  (restas.simple-auth.view:reset-password-success nil)))
+                       "Изменение пароля"))
+      (restas:redirect 'forgot)))
 
             
   
