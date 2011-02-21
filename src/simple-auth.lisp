@@ -31,9 +31,9 @@
 (restas:define-route login/post ("login"
                                  :method :post
                                  :requirement #'not-logged-on-p)
-  (let ((name (hunchentoot:post-parameter "name"))
-        (password-md5 (password-cache (hunchentoot:post-parameter "password")))
-        (done (hunchentoot:get-parameter "done")))
+  (let ((name (wsal:post-parameter "name"))
+        (password-md5 (password-cache (wsal:post-parameter "password")))
+        (done (wsal:get-parameter "done")))
     (if (check-user-password name password-md5)
         (progn
           (run-login name password-md5)
@@ -48,7 +48,7 @@
 
 (restas:define-route logout ("logout" :requirement #'logged-on-p)
   (run-logout)
-  (restas:redirect (or (hunchentoot:header-in :referer hunchentoot:*request*)
+  (restas:redirect (or (wsal:header-in :referer wsal:*request*)
                        'login)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -60,7 +60,7 @@
                  "Регистрация"))
 
 (defun form-field-value (field)
-  (hunchentoot:post-parameter field))
+  (wsal:post-parameter field))
 
 (defun form-field-empty-p (field)
   (string= (form-field-value field)
@@ -121,7 +121,7 @@
                                      (list :to to
                                            :noreply-mail *noreply-email*
                                            :subject (prepare-subject "Потверждение регистрации")
-                                           :host (hunchentoot:host)
+                                           :host (wsal:host)
                                            :link (restas:genurl-with-host 'accept-invitation :invite invite))))
                          (restas.simple-auth.view:register-send-mail nil)))
                    "Регистрация")))
@@ -134,15 +134,15 @@
 (restas:define-route accept-invitation ("register/confirmation/:(invite)" :requirement #'not-logged-on-p)
   (if (invite-exist-p invite)
       (accept-invitation-form)
-      hunchentoot:+HTTP-NOT-FOUND+))
+      wsal:+http-not-found+))
 
 (restas:define-route accept-invitation/post ("register/confirmation/:(invite)"
                                              :method :post
                                              :requirement #'not-logged-on-p)
   (if (invite-exist-p invite)
-      (if (cl-recaptcha:verify-captcha (hunchentoot:post-parameter "recaptcha_challenge_field")
-                                       (hunchentoot:post-parameter "recaptcha_response_field")
-                                       (hunchentoot:real-remote-addr)
+      (if (cl-recaptcha:verify-captcha (wsal:post-parameter "recaptcha_challenge_field")
+                                       (wsal:post-parameter "recaptcha_response_field")
+                                       (wsal:real-remote-address)
                                        :private-key *reCAPTCHA.privake-key*)
           (let ((account (create-account invite)))
             (run-login (first account)
@@ -150,7 +150,7 @@
             (finalize-page (restas.simple-auth.view:success-registration nil)
                            "Регистрация завершена"))
           (accept-invitation-form))
-      hunchentoot:+HTTP-NOT-FOUND+))
+      wsal:+http-not-found+))
         
     
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -164,7 +164,7 @@
 (restas:define-route forgot/post ("forgot"
                                   :method :post
                                   :requirement #'not-logged-on-p)
-  (let ((email-or-login (hunchentoot:post-parameter "email-or-login")))
+  (let ((email-or-login (wsal:post-parameter "email-or-login")))
     (if (or (not email-or-login)
             (string= email-or-login ""))
         (restas:redirect 'forgot)
@@ -176,7 +176,7 @@
                            (restas.simple-auth.view:forgot-mail (list :to (list email)
                                                                       :noreply-mail *noreply-email*
                                                                       :subject (prepare-subject "Восстановление пароля")
-                                                                      :host (hunchentoot:host)
+                                                                      :host (wsal:host)
                                                                       :link (restas:genurl-with-host 'reset-password :mark mark))))
                 (finalize-page (restas.simple-auth.view:forgot-send-mail nil)
                                "Восстановление пароля"))
@@ -188,7 +188,7 @@
   (if (forgot-mark-exist-p mark)
       (finalize-page (restas.simple-auth.view:reset-password-form nil)
                      "Изменение пароля")
-      hunchentoot:+HTTP-NOT-FOUND+))
+      wsal:+http-not-found+))
 
 (restas:define-route reset-password/post ("reset-password/:(mark)"
                                           :method :post
@@ -214,7 +214,7 @@
                                                                                :re-password (form-field-value "re-password")
                                                                                bads))
                            (progn (change-passwowrd mark
-                                                    (password-cache (hunchentoot:post-parameter "password")))
+                                                    (password-cache (wsal:post-parameter "password")))
                                   (restas.simple-auth.view:reset-password-success nil)))
                        "Изменение пароля"))
       (restas:redirect 'forgot)))

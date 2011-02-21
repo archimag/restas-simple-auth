@@ -27,11 +27,11 @@
 
 
 (defun set-auth-cookie (name password &key (version 1))
-  (hunchentoot:set-cookie *cookie-auth-name*
-                          :value (encrypt-auth-cookie name password :version version)
-                          :path "/"
-                          :expires (+ (get-universal-time) (* 60 60 24 4))
-                          :http-only t))
+  (wsal:set-cookie *cookie-auth-name*
+                   :value (encrypt-auth-cookie name password :version version)
+                   :path "/"
+                   :expires (+ (get-universal-time) (* 60 60 24 4))
+                   :http-only t))
 
 ;;;; get-auth-cookie
 
@@ -62,7 +62,7 @@
       (unpack-auth-cookie (babel:octets-to-string result :encoding :utf-8)))))
 
 (defun get-auth-cookie ()
-  (let ((cookie (hunchentoot:cookie-in *cookie-auth-name*)))
+  (let ((cookie (wsal:cookie-in *cookie-auth-name*)))
     (if cookie
         (decrypt-auth-cookie cookie))))
 
@@ -90,4 +90,4 @@
 
 (defun run-logout ()
   "Clear cookie with auth information"
-  (hunchentoot:set-cookie *cookie-auth-name*))
+  (wsal:set-cookie *cookie-auth-name*))
