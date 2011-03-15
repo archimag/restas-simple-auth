@@ -77,8 +77,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; initialization
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                                                          
-(restas:define-initialization (context)
+
+(defmethod restas:initialize-module-instance ((module (eql #.*package*)) context)
   (restas:context-add-variable context
                                '*user-auth-cipher*
                                (ironclad:make-cipher :blowfish 

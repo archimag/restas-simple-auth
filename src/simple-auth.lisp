@@ -122,7 +122,7 @@
                                            :noreply-mail *noreply-email*
                                            :subject (prepare-subject "Потверждение регистрации")
                                            :host (hunchentoot:host)
-                                           :link (restas:genurl-with-host 'accept-invitation :invite invite))))
+                                           :link (restas:gen-full-url 'accept-invitation :invite invite))))
                          (restas.simple-auth.view:register-send-mail nil)))
                    "Регистрация")))
 
@@ -177,7 +177,7 @@
                                                                       :noreply-mail *noreply-email*
                                                                       :subject (prepare-subject "Восстановление пароля")
                                                                       :host (hunchentoot:host)
-                                                                      :link (restas:genurl-with-host 'reset-password :mark mark))))
+                                                                      :link (restas:gen-full-url 'reset-password :mark mark))))
                 (finalize-page (restas.simple-auth.view:forgot-send-mail nil)
                                "Восстановление пароля"))
               (finalize-page (restas.simple-auth.view:forgot (list :bad t))
