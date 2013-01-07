@@ -16,31 +16,21 @@
            #:*finalize-page*
            #:*cookie-auth-name*
            #:*cookie-cipher-key*
-           #:*storage*
+           #:*datastore*
            #:*host*
 
-           #:storage-check-user-password
-           #:storage-email-exist-p
-           #:storage-user-exist-p
-           #:storage-create-invite
-           #:storage-invite-exist-p
-           #:storage-create-account
-           #:storage-create-forgot-mark
-           #:storage-forgot-mark-exist-p
-           #:storage-change-password))
+           ;; #:storage-check-user-password
+           ;; #:storage-email-exist-p
+           ;; #:storage-user-exist-p
+           ;; #:storage-create-invite
+           ;; #:storage-invite-exist-p
+           ;; #:storage-create-account
+           ;; #:storage-create-forgot-mark
+           ;; #:storage-forgot-mark-exist-p
+           ;; #:storage-change-password
+           ))
 
 (in-package #:restas.simple-auth)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; load templates
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(let ((basepath (merge-pathnames "src/templates/"
-                                 (asdf:component-pathname (asdf:find-system '#:restas-simple-auth)))))
-  (iter (for tmpl in '("login" "register" "forgot"))
-        (closure-template:compile-template :common-lisp-backend
-                                           (merge-pathnames (format nil "~A.tmpl" tmpl)
-                                                            basepath))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; preferences
@@ -72,19 +62,20 @@
 
 (defparameter *host* "example.com")
 
-(defparameter *storage* nil)
+;; (defparameter *storage* nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; initialization
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defmethod restas:initialize-module-instance ((module (eql #.*package*)) context)
-  (restas:context-add-variable context
-                               '*user-auth-cipher*
-                               (ironclad:make-cipher :blowfish 
-                                                     :mode :ecb
-                                                     :key (restas:context-symbol-value context
-                                                                                       '*cookie-cipher-key*))))
+  (restas:context-add-variable 
+   context
+   '*user-auth-cipher*
+   (ironclad:make-cipher :blowfish 
+                         :mode :ecb
+                         :key (restas:context-symbol-value context
+                                                           '*cookie-cipher-key*))))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; md5
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

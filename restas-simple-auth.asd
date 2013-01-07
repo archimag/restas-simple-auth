@@ -5,11 +5,16 @@
 ;;;;
 ;;;; Author: Moskvitin Andrey <archimag@gmail.com>
 
-(defsystem restas-simple-auth
-  :depends-on (#:restas #:closure-template #:ironclad #:cl-recaptcha)
-  :components ((:module "src"
-                        :components ((:file "defplugin")
-                                     (:file "storage" :depends-on ("defplugin"))
-                                     (:file "cookie" :depends-on ("storage"))
-                                     (:file "sendmail" :depends-on ("defplugin"))
-                                     (:file "simple-auth" :depends-on ("cookie" "sendmail"))))))
+(defsystem #:restas-simple-auth
+  :defsystem-depends-on (#:closure-template)
+  :depends-on (#:restas #:ironclad #:cl-recaptcha #:split-sequence)
+  :pathname "src"
+  :components ((:module "templates"
+                        :components ((:closure-template "forgot")
+                                     (:closure-template "login")
+                                     (:closure-template "register")))
+               (:file "defmodule" :depends-on ("templates"))
+               (:file "storage" :depends-on ("defmodule"))
+               (:file "cookie" :depends-on ("storage"))
+               (:file "sendmail" :depends-on ("defmodule"))
+               (:file "simple-auth" :depends-on ("cookie" "sendmail"))))

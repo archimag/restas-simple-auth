@@ -68,15 +68,20 @@
 
 ;;; compute-user-login-name 
 
-(restas:define-memoized-function compute-user-login/impl (cipher)
+;; (restas:define-memoized-function compute-user-login/impl (cipher)
+;;   (let ((auth-info (get-auth-cookie)))
+;;     (if auth-info
+;;         (check-user-password (second auth-info)
+;;                              (third auth-info)))))
+
+(defun compute-user-login-name ()
+  "Return user name for *request*."
   (let ((auth-info (get-auth-cookie)))
     (if auth-info
         (check-user-password (second auth-info)
                              (third auth-info)))))
 
-(defun compute-user-login-name ()
-  "Return user name for *request*."
-  (compute-user-login/impl *user-auth-cipher*))
+;;(compute-user-login/impl *user-auth-cipher*))
         
 ;;;; run-login
 

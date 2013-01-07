@@ -7,7 +7,7 @@
 //
 // Author: Moskvitin Andrey <archimag@gmail.com>
 
-{namespace restas.simple-auth.view}
+{namespace restas.simpleAuth.view}
 
 {template forgot}
     <div>
@@ -41,7 +41,7 @@
  * Forgot send mail
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-{template forgot-send-mail}
+{template forgotSendMail}
     <div>
         <h3>Забыли свой пароль?</h3>
         <p>Вам выслано письмо со ссылкой на продолжение.</p>
@@ -52,7 +52,7 @@
  * Reset password form
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-{template reset-password-form}
+{template resetPasswordForm}
     <div>
         <form method="post">
             <table >
@@ -93,7 +93,7 @@
  * Reset password success
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-{template reset-password-success}
+{template resetPasswordSuccess}
     <div>
         <p>Пароль успешно обновлён</p>
     </div>
@@ -104,7 +104,7 @@
  * Mails
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-{template forgot-mail}
+{template forgotMail}
     {nil}To: {foreach $receiver in $to}{if not isFirst($receiver)}{sp}{/if}{$receiver}{/foreach}{\n}
     {nil}From: {$noreplyMail}{\n}
     {nil}Subject: {$subject}{\n}

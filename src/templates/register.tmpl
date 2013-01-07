@@ -7,9 +7,9 @@
 //
 // Author: Moskvitin Andrey <archimag@gmail.com>
 
-{namespace restas.simple-auth.view}
+{namespace restas.simpleAuth.view}
 
-{template register-form}
+{template registerForm}
     <div>
         <h3>Создайте учётную запись</h3>
 
@@ -89,13 +89,13 @@
     </div>
 {/template}
 
-{template register-send-mail}
+{template registerSendMail}
     <div>
         <p>Вам выслано письмо со ссылкой на продолжение регистрации.</p>
     </div>
 {/template}
 
-{template confirmation-mail}
+{template confirmationMail}
     {nil}To: {foreach $receiver in $to}{if not isFirst($receiver)}{sp}{/if}{$receiver}{/foreach}{\n}
     {nil}From: {$noreplyMail}{\n}
     {nil}Subject: {$subject}{\n}
@@ -145,7 +145,7 @@
 {/template}
 
 
-{template success-registration}
+{template successRegistration}
     <div>
         Поздравляем с успешной регистрацией!</a>
     </div>
