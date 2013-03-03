@@ -123,7 +123,7 @@
                                            :noreply-mail *noreply-email*
                                            :subject (prepare-subject "Потверждение регистрации")
                                            :host (hunchentoot:host)
-                                           :link (restas:genurl* 'accept-invitation :invite invite))))
+                                           :link (restas:genurl 'accept-invitation :invite invite))))
                          (restas.simple-auth.view:register-send-mail nil)))
                    "Регистрация")))
 
