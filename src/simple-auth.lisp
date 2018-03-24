@@ -127,30 +127,14 @@
                          (restas.simple-auth.view:register-send-mail nil)))
                    "Регистрация")))
 
-(defun accept-invitation-form ()
-  (finalize-page (restas.simple-auth.view:confirmation (list :recaptcha-pubkey *reCAPTCHA.publick-key*
-                                                                 :theme *reCAPTCHA.theme*))
-                     "Потверждение регистрации"))
-
 (restas:define-route accept-invitation ("register/confirmation/:(invite)")
   (:requirement #'not-logged-on-p)
   (if (invite-exist-p invite)
-      (accept-invitation-form)
-      hunchentoot:+HTTP-NOT-FOUND+))
-
-(restas:define-route accept-invitation/post ("register/confirmation/:(invite)" :method :post)
-  (:requirement #'not-logged-on-p)
-  (if (invite-exist-p invite)
-      (if (cl-recaptcha:verify-captcha (hunchentoot:post-parameter "recaptcha_challenge_field")
-                                       (hunchentoot:post-parameter "recaptcha_response_field")
-                                       (hunchentoot:real-remote-addr)
-                                       :private-key *reCAPTCHA.privake-key*)
-          (let ((account (create-account invite)))
-            (run-login (first account)
-                       (third account))
-            (finalize-page (restas.simple-auth.view:success-registration nil)
-                           "Регистрация завершена"))
-          (accept-invitation-form))
+      (let ((account (create-account invite)))
+	(run-login (first account)
+		   (third account))
+	(finalize-page (restas.simple-auth.view:success-registration nil)
+		       "Регистрация завершена"))
       hunchentoot:+HTTP-NOT-FOUND+))
         
     
