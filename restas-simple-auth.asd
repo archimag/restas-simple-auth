@@ -7,7 +7,7 @@
 
 (defsystem #:restas-simple-auth
   :defsystem-depends-on (#:closure-template)
-  :depends-on (#:restas #:ironclad #:cl-recaptcha #:split-sequence)
+  :depends-on (#:restas #:ironclad #:split-sequence)
   :pathname "src"
   :components ((:module "templates"
                         :components ((:closure-template "forgot")

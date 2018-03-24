@@ -7,10 +7,7 @@
 
 (restas:define-module #:restas.simple-auth
   (:use #:cl #:iter)
-  (:export #:*reCAPTCHA.publick-key*
-           #:*reCAPTCHA.privake-key*
-           #:*reCAPTCHA.theme*
-           #:*sendmail*
+  (:export #:*sendmail*
            #:*noreply-email*
            #:*re-email-check* 
            #:*finalize-page*
@@ -43,12 +40,6 @@
 
 (defparameter *re-email-check* 
   "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$")
-
-(defparameter *reCAPTCHA.publick-key* "6LdZjAcAAAAAAGh_MzHcHfJWp6rpI0XUNghGQB1f")
-
-(defparameter *reCAPTCHA.privake-key* "6LdZjAcAAAAAAKJ2GPWTHPh1H1Foc0kyfbwgrFgO")
-
-(defparameter *reCAPTCHA.theme* nil)
 
 (defparameter *noreply-email* "noreply@example.com")
 

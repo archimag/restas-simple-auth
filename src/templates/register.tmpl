@@ -114,36 +114,6 @@
     Keeper
 {/template}
 
-{template confirmation}
-    <div>
-        <p>Для завершение регистрации введите два слова:</p>
-        <form method="post">
-            <script>
-                var RecaptchaOptions = {lb}
-                   theme : "{$theme ? $theme : 'clean'}",
-                   lang: "ru"
-                {rb};
-            </script>
-
-            <script type="text/javascript"
-                    src="http://api.recaptcha.net/challenge?k={$recaptchaPubkey}">
-            </script>
-
-            <noscript>
-                <iframe src="http://api.recaptcha.net/noscript?k={$recaptchaPubkey}"
-                        height="300" width="500" frameborder="0"></iframe><br />
-                <textarea name="recaptcha_challenge_field" rows="3" cols="40">
-                </textarea>
-                <input type="hidden" name="recaptcha_response_field" 
-                       value="manual_challenge" />
-            </noscript>
-
-            <br />
-            <input type="submit" value="Потвердить регистрацию" />
-        </form>
-    </div>
-{/template}
-
 
 {template successRegistration}
     <div>
